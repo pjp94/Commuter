@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Commuter</string>
+
+    <!-- Common -->
+    <string name="back_button_description">Back button</string>
+
+    <!-- Main activity -->
+    <string name="no_commutes_added">Looks like you haven\'t added a commute yet. Press the button to get started!</string>
+    <string name="card_menu_description">Overflow menu for commute cards</string>
+
+    <!-- Commute card -->
+    <string name="card_start">Start: %s</string>
+    <string name="card_end">End: %s</string>
+
+    <!-- Add commute activity -->
+    <string name="add_commute_title">Add a Commute</string>
+    <string name="start_address_hint">Enter start address</string>
+    <string name="end_address_hint">Enter end address</string>
+    <string name="commute_name_title">Give your commute a name (optional):</string>
+    <string name="commute_name_hint">Commute name</string>
+    <string name="avoid_tolls">Avoid Tolls</string>
+    <string name="avoid_highways">Avoid Highways</string>
+    <string name="save">Save</string>
+</resources>
