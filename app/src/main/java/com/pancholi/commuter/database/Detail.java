@@ -1,7 +1,9 @@
 package com.pancholi.commuter.database;
 
 import java.util.Date;
+import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -18,18 +20,18 @@ public class Detail {
   @PrimaryKey(autoGenerate = true)
   private int id;
   @ColumnInfo(name = "commute_id")
-  private int commuteId;
-  private Date date;
-  private String time;
-  private String duration;
-  private float distance;
+  private final int commuteId;
+  private final Date date;
+  private final long time;
+  private final String distance;
+  private final String duration;
 
-  public Detail(int commuteId, Date date, String time, String duration, float distance) {
+  public Detail(int commuteId, Date date, long time, String distance, String duration) {
     this.commuteId = commuteId;
     this.date = date;
     this.time = time;
-    this.duration = duration;
     this.distance = distance;
+    this.duration = duration;
   }
 
   public void setId(int id) {
@@ -48,15 +50,49 @@ public class Detail {
     return date;
   }
 
-  public String getTime() {
+  public long getTime() {
     return time;
+  }
+
+  public String getDistance() {
+    return distance;
   }
 
   public String getDuration() {
     return duration;
   }
 
-  public float getDistance() {
-    return distance;
+  @Override
+  public int hashCode() {
+    return Objects.hash(commuteId, date, time, distance, duration);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Detail)) {
+      return false;
+    }
+
+    Detail detail = (Detail) o;
+
+    return detail.getId() == id &&
+            detail.getCommuteId() == commuteId &&
+            detail.getDate().equals(date) &&
+            detail.getTime() == time &&
+            detail.getDistance().equals(distance) &&
+            detail.getDuration().equals(duration);
+  }
+
+  @NonNull
+  @Override
+  public String toString() {
+    return "Detail {" +
+            "id=" + id +
+            ", commuteId=" + commuteId +
+            ", date=" + date +
+            ", time=" + time +
+            ", distance='" + distance + '\'' +
+            ", duration='" + duration + '\'' +
+            '}';
   }
 }

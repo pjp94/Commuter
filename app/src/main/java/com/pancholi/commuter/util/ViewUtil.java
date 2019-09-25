@@ -1,4 +1,4 @@
-package com.pancholi.commuter;
+package com.pancholi.commuter.util;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;

@@ -1,4 +1,4 @@
-package com.pancholi.commuter;
+package com.pancholi.commuter.commutecard;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.pancholi.commuter.R;
 import com.pancholi.commuter.database.Commute;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.
     final TextView destination;
     final ImageButton menu;
 
-    public ViewHolder(@NonNull View itemView) {
+    ViewHolder(@NonNull View itemView) {
       super(itemView);
       name = itemView.findViewById(R.id.commuteCardName);
       origin = itemView.findViewById(R.id.commuteCardStart);

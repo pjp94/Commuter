@@ -123,4 +123,40 @@ public class Commute implements Parcelable {
     dest.writeInt(avoidToll ? 1 : 0);
     dest.writeInt(avoidHighway ? 1 : 0);
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(origin, originId, destination, destinationId, avoidToll, avoidHighway);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Commute)) {
+      return false;
+    }
+
+    Commute commute = (Commute) o;
+
+    return commute.getOrigin().equals(origin) &&
+            commute.getOriginId().equals(originId) &&
+            commute.getDestination().equals(destination) &&
+            commute.getDestinationId().equals(destinationId) &&
+            commute.getAvoidToll() == avoidToll &&
+            commute.getAvoidHighway() == avoidHighway;
+  }
+
+  @NonNull
+  @Override
+  public String toString() {
+    return "Commute {" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", origin='" + origin + '\'' +
+            ", originId='" + originId + '\'' +
+            ", destination='" + destination + '\'' +
+            ", destinationId='" + destinationId + '\'' +
+            ", avoidToll=" + avoidToll +
+            ", avoidHighway=" + avoidHighway +
+            '}';
+  }
 }

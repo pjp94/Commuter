@@ -31,7 +31,11 @@ public class CommuteRepository extends BaseRepository<Commute> {
     super.delete(commuteDao, commute);
   }
 
-  public LiveData<List<Commute>> getAllCommutes() {
+  public LiveData<List<Commute>> getAllObservableCommutes() {
+    return commuteDao.getAllObservableCommutes();
+  }
+
+  public List<Commute> getAllCommutes() {
     return commuteDao.getAllCommutes();
   }
 

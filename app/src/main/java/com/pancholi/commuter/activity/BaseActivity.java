@@ -1,4 +1,4 @@
-package com.pancholi.commuter;
+package com.pancholi.commuter.activity;
 
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.AppCompatActivity;

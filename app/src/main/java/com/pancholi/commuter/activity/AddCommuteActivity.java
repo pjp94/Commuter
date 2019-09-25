@@ -1,7 +1,6 @@
-package com.pancholi.commuter;
+package com.pancholi.commuter.activity;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -16,6 +15,9 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.pancholi.commuter.R;
+import com.pancholi.commuter.commutecard.AddressClearDrawable;
+import com.pancholi.commuter.commutecard.AddressInfo;
 import com.pancholi.commuter.database.Commute;
 import com.pancholi.commuter.googlemaps.MapsUtil;
 
@@ -43,13 +45,11 @@ public class AddCommuteActivity extends BaseActivity {
   private static final List<Place.Field> PLACE_FIELDS =
           Arrays.asList(Place.Field.ID, Place.Field.ADDRESS);
 
-  private String origin;
-  private String originId;
-  private String destination;
-  private String destinationId;
+  private AddressInfo startAddressInfo;
+  private AddressInfo endAddressInfo;
 
-  private Drawable startClear;
-  private Drawable endClear;
+  private AddressClearDrawable startClear;
+  private AddressClearDrawable endClear;
 
   @BindView(R.id.addCommuteStartAddress)
   TextView startAddress;
@@ -70,45 +70,48 @@ public class AddCommuteActivity extends BaseActivity {
     setContentView(R.layout.activity_add_commute);
 
     Places.initialize(this, MapsUtil.API_KEY);
+    setAddressInfoAndDrawables();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    setAddressFieldDrawablesVisibility();
+    setAddressClearDrawablesVisibility();
   }
 
-  private void setAddressFieldDrawablesVisibility() {
-    startClear = ViewUtil.getDrawableFromTextView(startAddress,
-            ViewUtil.RIGHT_COMPOUND_DRAWABLE_INDEX);
-    endClear = ViewUtil.getDrawableFromTextView(endAddress,
-            ViewUtil.RIGHT_COMPOUND_DRAWABLE_INDEX);
+  private void setAddressInfoAndDrawables() {
+    startAddressInfo = new AddressInfo();
+    endAddressInfo = new AddressInfo();
+    startClear = new AddressClearDrawable(startAddress);
+    endClear = new AddressClearDrawable(endAddress);
+  }
 
-    Drawable startDrawable = origin != null && !origin.isEmpty() ? startClear : null;
-    Drawable endDrawable = destination != null && !destination.isEmpty() ? endClear : null;
+  private void setAddressClearDrawablesVisibility() {
+    String origin = startAddressInfo.getAddress();
+    String destination = endAddressInfo.getAddress();
 
-    setDrawableEnd(startAddress, startDrawable);
-    setDrawableEnd(endAddress, endDrawable);
+    startClear.setDrawableEnd(origin != null && !origin.isEmpty());
+    endClear.setDrawableEnd(destination != null && !destination.isEmpty());
   }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-    savedInstanceState.putString(SAVED_INSTANCE_STATE_ORIGIN, origin);
-    savedInstanceState.putString(SAVED_INSTANCE_STATE_ORIGIN_ID, originId);
-    savedInstanceState.putString(SAVED_INSTANCE_STATE_DESTINATION, destination);
-    savedInstanceState.putString(SAVED_INSTANCE_STATE_DESTINATION_ID, destinationId);
+    savedInstanceState.putString(SAVED_INSTANCE_STATE_ORIGIN, startAddressInfo.getAddress());
+    savedInstanceState.putString(SAVED_INSTANCE_STATE_ORIGIN_ID, startAddressInfo.getAddressId());
+    savedInstanceState.putString(SAVED_INSTANCE_STATE_DESTINATION, endAddressInfo.getAddress());
+    savedInstanceState.putString(SAVED_INSTANCE_STATE_DESTINATION_ID, endAddressInfo.getAddressId());
     super.onSaveInstanceState(savedInstanceState);
   }
 
   @Override
   public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
-    origin = savedInstanceState.getString(SAVED_INSTANCE_STATE_ORIGIN);
-    originId = savedInstanceState.getString(SAVED_INSTANCE_STATE_ORIGIN_ID);
-    destination = savedInstanceState.getString(SAVED_INSTANCE_STATE_DESTINATION);
-    destinationId = savedInstanceState.getString(SAVED_INSTANCE_STATE_DESTINATION_ID);
-    startAddress.setText(origin);
-    endAddress.setText(destination);
+    startAddressInfo.setAddress(savedInstanceState.getString(SAVED_INSTANCE_STATE_ORIGIN));
+    startAddressInfo.setAddressId(savedInstanceState.getString(SAVED_INSTANCE_STATE_ORIGIN_ID));
+    endAddressInfo.setAddress(savedInstanceState.getString(SAVED_INSTANCE_STATE_DESTINATION));
+    endAddressInfo.setAddressId(savedInstanceState.getString(SAVED_INSTANCE_STATE_DESTINATION_ID));
+    startAddress.setText(startAddressInfo.getAddress());
+    endAddress.setText(endAddressInfo.getAddress());
   }
 
   @OnClick(R.id.buttonBack)
@@ -135,16 +138,15 @@ public class AddCommuteActivity extends BaseActivity {
       return;
     }
 
-    if (!startClear.isVisible()) {
+    if (startClear.notVisible()) {
       getNewStartAddress();
       return;
     }
 
-    if (clearButtonPressed(startAddress, startClear, event)) {
-      origin = null;
-      originId = null;
+    if (startClear.isDrawablePressed(event)) {
       startAddress.setText("");
-      setDrawableEnd(startAddress, null);
+      startAddressInfo.clearValues();
+      startClear.setDrawableEnd(false);
     } else {
       getNewStartAddress();
     }
@@ -160,16 +162,15 @@ public class AddCommuteActivity extends BaseActivity {
       return;
     }
 
-    if (!endClear.isVisible()) {
+    if (endClear.notVisible()) {
       getNewEndAddress();
       return;
     }
 
-    if (clearButtonPressed(endAddress, endClear, event)) {
-      destination = null;
-      destinationId = null;
+    if (endClear.isDrawablePressed(event)) {
       endAddress.setText("");
-      setDrawableEnd(endAddress, null);
+      endAddressInfo.clearValues();
+      endClear.setDrawableEnd(false);
     } else {
       getNewEndAddress();
     }
@@ -187,16 +188,6 @@ public class AddCommuteActivity extends BaseActivity {
     startActivityForResult(intent, requestCode);
   }
 
-  private boolean clearButtonPressed(TextView addressBar,
-                                     Drawable clearButton,
-                                     MotionEvent event) {
-    return event.getRawX() >=
-            addressBar.getRight() -
-            clearButton.getBounds().width() -
-            addressBar.getPaddingRight() -
-            addressBar.getCompoundDrawablePadding();
-  }
-
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -210,11 +201,8 @@ public class AddCommuteActivity extends BaseActivity {
 
   private void handleOriginResult(int resultCode, Intent data) {
     if (resultCode == RESULT_OK) {
-      Place place = Autocomplete.getPlaceFromIntent(data);
-      origin = getTrimmedAddress(place.getAddress());
-      originId = place.getId();
-      startAddress.setText(origin);
-      setDrawableEnd(startAddress, startClear);
+      setAddressValues(Autocomplete.getPlaceFromIntent(data),
+              startAddress, startClear, startAddressInfo);
     } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
       logAutocompleteError(data);
     }
@@ -222,14 +210,20 @@ public class AddCommuteActivity extends BaseActivity {
 
   private void handleDestinationResult(int resultCode, Intent data) {
     if (resultCode == RESULT_OK) {
-      Place place = Autocomplete.getPlaceFromIntent(data);
-      destination = getTrimmedAddress(place.getAddress());
-      destinationId = place.getId();
-      endAddress.setText(destination);
-      setDrawableEnd(endAddress, endClear);
+      setAddressValues(Autocomplete.getPlaceFromIntent(data),
+              endAddress, endClear, endAddressInfo);
     } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
       logAutocompleteError(data);
     }
+  }
+
+  private void setAddressValues(Place place, TextView addressBar,
+                                AddressClearDrawable clearDrawable,
+                                AddressInfo addressInfo) {
+    addressInfo.setAddress(getTrimmedAddress(place.getAddress()));
+    addressInfo.setAddressId(place.getId());
+    addressBar.setText(addressInfo.getAddress());
+    clearDrawable.setDrawableEnd(true);
   }
 
   private String getTrimmedAddress(String address) {
@@ -238,10 +232,6 @@ public class AddCommuteActivity extends BaseActivity {
     }
 
     return address.substring(0, address.indexOf(", USA"));
-  }
-
-  private void setDrawableEnd(TextView view, Drawable drawable) {
-    view.setCompoundDrawablesRelative(null, null, drawable, null);
   }
 
   private void logAutocompleteError(Intent data) {
@@ -253,6 +243,10 @@ public class AddCommuteActivity extends BaseActivity {
   void saveCommute() {
     String nameInput = commuteName.getText().toString().trim();
     String name = nameInput.isEmpty() ? null : nameInput;
+    String origin = startAddressInfo.getAddress();
+    String originId = startAddressInfo.getAddressId();
+    String destination = endAddressInfo.getAddress();
+    String destinationId = endAddressInfo.getAddressId();
     boolean avoidTolls = checkBoxAvoidTolls.isChecked();
     boolean avoidHighways = checkBoxAvoidHighways.isChecked();
 

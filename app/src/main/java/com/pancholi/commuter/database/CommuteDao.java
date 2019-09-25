@@ -10,7 +10,10 @@ import androidx.room.Query;
 public interface CommuteDao extends BaseDao<Commute> {
 
   @Query("SELECT * FROM commutes")
-  LiveData<List<Commute>> getAllCommutes();
+  LiveData<List<Commute>> getAllObservableCommutes();
+
+  @Query("SELECT * FROM commutes")
+  List<Commute> getAllCommutes();
 
   @Query("DELETE FROM commutes")
   void deleteAllCommutes();

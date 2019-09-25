@@ -1,4 +1,4 @@
-package com.pancholi.commuter;
+package com.pancholi.commuter.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pancholi.commuter.viewmodel.CommuteViewModel;
+import com.pancholi.commuter.R;
+import com.pancholi.commuter.alarm.CommuteAlarm;
+import com.pancholi.commuter.commutecard.CommuteCardMenuClickListener;
+import com.pancholi.commuter.commutecard.CommuteListAdapter;
 import com.pancholi.commuter.database.Commute;
 
 import androidx.lifecycle.ViewModelProviders;
@@ -60,11 +65,14 @@ public class MainActivity extends BaseActivity {
 
   private void setViewModel() {
     commuteViewModel = ViewModelProviders.of(this).get(CommuteViewModel.class);
-    commuteViewModel.getAllCommutes().observe(this, commutes -> {
+    commuteViewModel.getAllObservableCommutes().observe(this, commutes -> {
+      boolean isEmpty = commutes.isEmpty();
+
+      CommuteAlarm.decideAlarm(this, !isEmpty);
       adapter.setCommutes(commutes);
       commuteProgressBar.setVisibility(View.INVISIBLE);
-      commuteList.setVisibility(commutes.isEmpty() ? View.INVISIBLE : View.VISIBLE);
-      noCommutesAdded.setVisibility(commutes.isEmpty() ? View.VISIBLE : View.INVISIBLE);
+      commuteList.setVisibility(isEmpty ? View.INVISIBLE : View.VISIBLE);
+      noCommutesAdded.setVisibility(isEmpty ? View.VISIBLE : View.INVISIBLE);
     });
   }
 

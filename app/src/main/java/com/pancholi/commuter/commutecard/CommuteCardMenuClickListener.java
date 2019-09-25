@@ -1,6 +1,8 @@
-package com.pancholi.commuter;
+package com.pancholi.commuter.commutecard;
 
 import android.view.MenuItem;
+
+import com.pancholi.commuter.R;
 
 import androidx.appcompat.widget.PopupMenu;
 
@@ -8,7 +10,7 @@ public class CommuteCardMenuClickListener implements PopupMenu.OnMenuItemClickLi
 
   private CardMenuItemClickedListener cardMenuItemClickedListener;
 
-  public CommuteCardMenuClickListener(CardMenuItemClickedListener cardMenuItemClickedListener) {
+  CommuteCardMenuClickListener(CardMenuItemClickedListener cardMenuItemClickedListener) {
     this.cardMenuItemClickedListener = cardMenuItemClickedListener;
   }
 

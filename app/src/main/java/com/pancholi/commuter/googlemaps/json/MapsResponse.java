@@ -2,14 +2,14 @@ package com.pancholi.commuter.googlemaps.json;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Response {
+public class MapsResponse {
 
   private String status;
   @SerializedName("origin_addresses")
   private String[] origin;
   @SerializedName("destination_addresses")
   private String[] destination;
-  private Element[] rows;
+  private Row[] rows;
 
   public String getOrigin() {
     return origin == null || origin.length == 0 ? null : origin[0];
@@ -19,7 +19,7 @@ public class Response {
     return destination == null || destination.length == 0 ? null : destination[0];
   }
 
-  public Element getRow() {
+  public Row getRow() {
     return rows == null || rows.length == 0 ? null : rows[0];
   }
 }
