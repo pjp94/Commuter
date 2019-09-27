@@ -21,11 +21,16 @@ import androidx.recyclerview.widget.RecyclerView;
 public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.ViewHolder> {
 
   private Context context;
-  private CommuteCardMenuClickListener.CardMenuItemClickedListener cardMenuItemClickedListener;
+  private CardMenuItemClickedListener cardMenuItemClickedListener;
   private List<Commute> commutes;
 
+  public interface CardMenuItemClickedListener {
+    void onEditClicked(Commute commute);
+    void onDeleteClicked(Commute commute);
+  }
+
   public CommuteListAdapter(Context context,
-                            CommuteCardMenuClickListener.CardMenuItemClickedListener listener) {
+                            CardMenuItemClickedListener listener) {
     this.context = context;
     this.cardMenuItemClickedListener = listener;
   }
@@ -58,16 +63,31 @@ public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.
 
     holder.origin.setText(origin);
     holder.destination.setText(destination);
-    holder.menu.setOnClickListener(this::showPopupMenu);
+    holder.menu.setOnClickListener(v -> showPopupMenu(v, commute));
   }
 
-  private void showPopupMenu(View v) {
+  private void showPopupMenu(View v, Commute commute) {
     PopupMenu popupMenu = new PopupMenu(context, v);
     MenuInflater inflater = popupMenu.getMenuInflater();
 
     inflater.inflate(R.menu.card_menu, popupMenu.getMenu());
-    popupMenu.setOnMenuItemClickListener(new CommuteCardMenuClickListener(cardMenuItemClickedListener));
+    popupMenu.setOnMenuItemClickListener(
+            new CommuteCardMenuClickListener(getItemClickedListener(commute)));
     popupMenu.show();
+  }
+
+  private CommuteCardMenuClickListener.CardMenuItemClickedListener getItemClickedListener(Commute commute) {
+    return new CommuteCardMenuClickListener.CardMenuItemClickedListener() {
+      @Override
+      public void onEditClicked() {
+        cardMenuItemClickedListener.onEditClicked(commute);
+      }
+
+      @Override
+      public void onDeleteClicked() {
+        cardMenuItemClickedListener.onDeleteClicked(commute);
+      }
+    };
   }
 
   @Override

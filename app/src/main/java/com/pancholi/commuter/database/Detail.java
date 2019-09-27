@@ -10,11 +10,14 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import static androidx.room.ForeignKey.CASCADE;
+
 @Entity(tableName = "details",
         indices = @Index(value = "commute_id"),
         foreignKeys = @ForeignKey(entity = Commute.class,
                                   parentColumns = "id",
-                                  childColumns = "commute_id"))
+                                  childColumns = "commute_id",
+                                  onDelete = CASCADE))
 public class Detail {
 
   @PrimaryKey(autoGenerate = true)

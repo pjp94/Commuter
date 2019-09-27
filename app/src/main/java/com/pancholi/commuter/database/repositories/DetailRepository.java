@@ -35,6 +35,10 @@ public class DetailRepository extends BaseRepository<Detail> {
     return detailDao.getAllDetailsForCommute(commuteId);
   }
 
+  public List<Detail> getListDetailsForCommute(int commuteId) {
+    return detailDao.getListDetailsForCommute(commuteId);
+  }
+
   public LiveData<List<Detail>> getAllDetailsForCommuteAfterDate(int commuteId, Date date) {
     return detailDao.getDetailsForCommuteAfterDate(commuteId, date);
   }

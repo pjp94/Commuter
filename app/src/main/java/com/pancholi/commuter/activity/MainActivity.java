@@ -1,18 +1,23 @@
 package com.pancholi.commuter.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pancholi.commuter.database.Detail;
+import com.pancholi.commuter.database.repositories.DetailRepository;
 import com.pancholi.commuter.viewmodel.CommuteViewModel;
 import com.pancholi.commuter.R;
 import com.pancholi.commuter.alarm.CommuteAlarm;
-import com.pancholi.commuter.commutecard.CommuteCardMenuClickListener;
 import com.pancholi.commuter.commutecard.CommuteListAdapter;
 import com.pancholi.commuter.database.Commute;
+
+import java.util.List;
 
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,31 +54,60 @@ public class MainActivity extends BaseActivity {
     commuteList.setAdapter(adapter);
   }
 
-  private CommuteCardMenuClickListener.CardMenuItemClickedListener getCardMenuItemClickedListener() {
-    return new CommuteCardMenuClickListener.CardMenuItemClickedListener() {
+  private CommuteListAdapter.CardMenuItemClickedListener getCardMenuItemClickedListener() {
+    return new CommuteListAdapter.CardMenuItemClickedListener() {
       @Override
-      public void onEditClicked() {
+      public void onEditClicked(Commute commute) {
         Toast.makeText(MainActivity.this, "Edit clicked.", Toast.LENGTH_SHORT).show();
       }
 
       @Override
-      public void onDeleteClicked() {
-        Toast.makeText(MainActivity.this, "Delete clicked", Toast.LENGTH_SHORT).show();
+      public void onDeleteClicked(Commute commute) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setMessage(getDeleteMessage(commute.getName()))
+                .setNegativeButton(R.string.no, null)
+                .setPositiveButton(R.string.yes,
+                        (dialog, which) -> commuteViewModel.delete(commute))
+                .show();
       }
     };
+  }
+
+  private String getDeleteMessage(String name) {
+    return getString(name == null || name.isEmpty()
+            ? R.string.delete_this_commute
+            : R.string.delete_commute_with_name, name);
   }
 
   private void setViewModel() {
     commuteViewModel = ViewModelProviders.of(this).get(CommuteViewModel.class);
     commuteViewModel.getAllObservableCommutes().observe(this, commutes -> {
-      boolean isEmpty = commutes.isEmpty();
-
-      CommuteAlarm.decideAlarm(this, !isEmpty);
-      adapter.setCommutes(commutes);
-      commuteProgressBar.setVisibility(View.INVISIBLE);
-      commuteList.setVisibility(isEmpty ? View.INVISIBLE : View.VISIBLE);
-      noCommutesAdded.setVisibility(isEmpty ? View.VISIBLE : View.INVISIBLE);
+      CommuteAlarm.decideAlarm(this, commutes.size() == 1);
+      setViewsAfterCommutesLoad(commutes);
+//      logDetails(commutes);
     });
+  }
+
+  private void setViewsAfterCommutesLoad(List<Commute> commutes) {
+    adapter.setCommutes(commutes);
+    commuteProgressBar.setVisibility(View.INVISIBLE);
+    commuteList.setVisibility(commutes.isEmpty() ? View.INVISIBLE : View.VISIBLE);
+    noCommutesAdded.setVisibility(commutes.isEmpty() ? View.VISIBLE : View.INVISIBLE);
+  }
+
+  private void logDetails(List<Commute> commutes) {
+    DetailRepository repository = new DetailRepository(this);
+
+    for (Commute commute : commutes) {
+      new Thread(() ->
+      {
+        List<Detail> details = repository.getListDetailsForCommute(commute.getId());
+
+        for (Detail detail : details) {
+          Log.d(TAG, detail.toString());
+        }
+      }).start();
+    }
   }
 
   @OnClick(R.id.buttonAddCommute)
