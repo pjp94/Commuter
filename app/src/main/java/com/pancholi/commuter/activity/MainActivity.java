@@ -1,7 +1,9 @@
 package com.pancholi.commuter.activity;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pancholi.commuter.alarm.DeviceBootReceiver;
 import com.pancholi.commuter.database.Detail;
 import com.pancholi.commuter.database.repositories.DetailRepository;
 import com.pancholi.commuter.viewmodel.CommuteViewModel;
@@ -91,9 +94,20 @@ public class MainActivity extends BaseActivity {
     commuteViewModel = ViewModelProviders.of(this).get(CommuteViewModel.class);
     commuteViewModel.getAllObservableCommutes().observe(this, commutes -> {
       CommuteAlarm.decideAlarm(this, commutes.size() == 1);
+      setDeviceBootReceiverEnabled(commutes.isEmpty());
       setViewsAfterCommutesLoad(commutes);
       logDetails(commutes);
     });
+  }
+
+  private void setDeviceBootReceiverEnabled(boolean noCommutes) {
+    ComponentName receiver = new ComponentName(this, DeviceBootReceiver.class);
+    PackageManager packageManager = getPackageManager();
+    int flag = noCommutes
+            ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            : PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+
+    packageManager.setComponentEnabledSetting(receiver, flag, PackageManager.DONT_KILL_APP);
   }
 
   private void setViewsAfterCommutesLoad(List<Commute> commutes) {
