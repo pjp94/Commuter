@@ -25,11 +25,11 @@ public class Detail {
   @ColumnInfo(name = "commute_id")
   private final int commuteId;
   private final Date date;
-  private final long time;
-  private final String distance;
-  private final String duration;
+  private final String time;
+  private final long distance; // 1609.34 meters = 1 mile
+  private final long duration; // seconds
 
-  public Detail(int commuteId, Date date, long time, String distance, String duration) {
+  public Detail(int commuteId, Date date, String time, long distance, long duration) {
     this.commuteId = commuteId;
     this.date = date;
     this.time = time;
@@ -53,15 +53,15 @@ public class Detail {
     return date;
   }
 
-  public long getTime() {
+  public String getTime() {
     return time;
   }
 
-  public String getDistance() {
+  public long getDistance() {
     return distance;
   }
 
-  public String getDuration() {
+  public long getDuration() {
     return duration;
   }
 
@@ -81,9 +81,9 @@ public class Detail {
     return detail.getId() == id &&
             detail.getCommuteId() == commuteId &&
             detail.getDate().equals(date) &&
-            detail.getTime() == time &&
-            detail.getDistance().equals(distance) &&
-            detail.getDuration().equals(duration);
+            detail.getTime().equals(time) &&
+            detail.getDistance() == distance &&
+            detail.getDuration() ==duration;
   }
 
   @NonNull

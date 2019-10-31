@@ -21,18 +21,19 @@ import androidx.recyclerview.widget.RecyclerView;
 public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.ViewHolder> {
 
   private Context context;
-  private CardMenuItemClickedListener cardMenuItemClickedListener;
+  private CardClickedListener cardClickedListener;
   private List<Commute> commutes;
 
-  public interface CardMenuItemClickedListener {
+  public interface CardClickedListener {
+    void onCardClicked(int commuteId);
     void onEditClicked(Commute commute);
     void onDeleteClicked(Commute commute);
   }
 
   public CommuteListAdapter(Context context,
-                            CardMenuItemClickedListener listener) {
+                            CardClickedListener listener) {
     this.context = context;
-    this.cardMenuItemClickedListener = listener;
+    this.cardClickedListener = listener;
   }
 
   @NonNull
@@ -64,6 +65,7 @@ public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.
     holder.origin.setText(origin);
     holder.destination.setText(destination);
     holder.menu.setOnClickListener(v -> showPopupMenu(v, commute));
+    holder.cardView.setOnClickListener(v -> cardClickedListener.onCardClicked(commute.getId()));
   }
 
   private void showPopupMenu(View v, Commute commute) {
@@ -80,12 +82,12 @@ public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.
     return new CommuteCardMenuClickListener.CardMenuItemClickedListener() {
       @Override
       public void onEditClicked() {
-        cardMenuItemClickedListener.onEditClicked(commute);
+        cardClickedListener.onEditClicked(commute);
       }
 
       @Override
       public void onDeleteClicked() {
-        cardMenuItemClickedListener.onDeleteClicked(commute);
+        cardClickedListener.onDeleteClicked(commute);
       }
     };
   }
@@ -102,6 +104,7 @@ public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.
 
   static class ViewHolder extends RecyclerView.ViewHolder {
 
+    final View cardView;
     final TextView name;
     final TextView origin;
     final TextView destination;
@@ -109,6 +112,7 @@ public class CommuteListAdapter extends RecyclerView.Adapter<CommuteListAdapter.
 
     ViewHolder(@NonNull View itemView) {
       super(itemView);
+      cardView = itemView;
       name = itemView.findViewById(R.id.commuteCardName);
       origin = itemView.findViewById(R.id.commuteCardStart);
       destination = itemView.findViewById(R.id.commuteCardEnd);

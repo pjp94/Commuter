@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@Database(entities = {Commute.class, Detail.class}, version = 3)
+@Database(entities = {Commute.class, Detail.class}, version = 4)
 @TypeConverters({Converters.class})
 public abstract class CommuterDatabase extends RoomDatabase {
 

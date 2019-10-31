@@ -21,4 +21,8 @@ public interface DetailDao extends BaseDao<Detail> {
 
   @Query("SELECT * FROM details WHERE commute_id = :commuteId AND date > :date")
   LiveData<List<Detail>> getDetailsForCommuteAfterDate(int commuteId, Date date);
+
+  @Query("SELECT time, AVG(distance) AS distance, AVG(duration) AS duration " +
+         "FROM details WHERE commute_id = :commuteId GROUP BY time")
+  LiveData<List<DetailAverage>> getAllDetailAveragesForCommute(int commuteId);
 }

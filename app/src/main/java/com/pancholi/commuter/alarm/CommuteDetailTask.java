@@ -10,8 +10,10 @@ import com.pancholi.commuter.database.Detail;
 import com.pancholi.commuter.googlemaps.MapsUtil;
 import com.pancholi.commuter.googlemaps.json.Element;
 import com.pancholi.commuter.googlemaps.json.MapsResponse;
+import com.pancholi.commuter.util.TimeUtil;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,7 @@ public class CommuteDetailTask extends AsyncTask<Commute, Void, Detail> {
     Commute commute = commutes[0];
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://maps.googleapis.com/")
+            .baseUrl(MapsUtil.MAPS_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
@@ -63,10 +65,10 @@ public class CommuteDetailTask extends AsyncTask<Commute, Void, Detail> {
 
   private Detail getDetailFromResponse(MapsResponse response, int commuteId) {
     Element element = response.getRow().getElement();
-    String distance = element.getDistance().getText();
-    String duration = element.getDurationInTraffic().getText();
     Date date = new Date();
-    long time = System.currentTimeMillis();
+    String time = TimeUtil.getReadableCurrentTime(Calendar.getInstance());
+    long distance = element.getDistance().getValue();
+    long duration = element.getDurationInTraffic().getValue();
 
     return new Detail(commuteId, date, time, distance, duration);
   }

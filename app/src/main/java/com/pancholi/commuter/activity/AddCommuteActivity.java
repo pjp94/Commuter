@@ -70,6 +70,7 @@ public class AddCommuteActivity extends BaseActivity {
     setContentView(R.layout.activity_add_commute);
 
     Places.initialize(this, MapsUtil.API_KEY);
+    setToolbarTitle();
     setAddressInfoAndDrawables();
   }
 
@@ -77,6 +78,10 @@ public class AddCommuteActivity extends BaseActivity {
   protected void onResume() {
     super.onResume();
     setAddressClearDrawablesVisibility();
+  }
+
+  private void setToolbarTitle() {
+    ((TextView) findViewById(R.id.toolbarTitle)).setText(R.string.add_commute_title);
   }
 
   private void setAddressInfoAndDrawables() {

@@ -2,6 +2,7 @@ package com.pancholi.commuter.database.repositories;
 
 import android.content.Context;
 
+import com.pancholi.commuter.database.DetailAverage;
 import com.pancholi.commuter.database.CommuterDatabase;
 import com.pancholi.commuter.database.Detail;
 import com.pancholi.commuter.database.DetailDao;
@@ -41,5 +42,9 @@ public class DetailRepository extends BaseRepository<Detail> {
 
   public LiveData<List<Detail>> getAllDetailsForCommuteAfterDate(int commuteId, Date date) {
     return detailDao.getDetailsForCommuteAfterDate(commuteId, date);
+  }
+
+  public LiveData<List<DetailAverage>> getAllDetailAveragesForCommute(int commuteId) {
+    return detailDao.getAllDetailAveragesForCommute(commuteId);
   }
 }

@@ -13,7 +13,7 @@ import java.util.Calendar;
 
 public class CommuteAlarm {
 
-  private static final String SHARED_PREFS_ALARM_SET = "sharedPreferencesAlarmSet";
+  public static final String SHARED_PREFS_ALARM_SET = "sharedPreferencesAlarmSet";
 
   private static AlarmManager alarmManager;
   private static PendingIntent alarmIntent;
@@ -43,17 +43,43 @@ public class CommuteAlarm {
   }
 
   static void scheduleAlarm(Context context) {
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(System.currentTimeMillis());
-    calendar.set(Calendar.HOUR_OF_DAY, 11);
-    calendar.set(Calendar.MINUTE, 17);
-//    calendar.add(Calendar.DAY_OF_MONTH, 1);
+    Calendar calendar = getCalendarForClosestInterval();
 
     getAlarmManager(context);
+    setInexactRepeatingAlarm(context, calendar);
+    setSharedPreferencesAlarm(context, true);
+
+    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+    int minute = calendar.get(Calendar.MINUTE);
+    Log.d(BaseActivity.TAG, String.format("Alarm scheduled for %d%d", hour, minute));
+  }
+
+  private static Calendar getCalendarForClosestInterval() {
+    Calendar calendar = Calendar.getInstance();
+    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+    int minute = calendar.get(Calendar.MINUTE);
+
+    if (hour < 7 || hour >= 19) {
+      calendar.set(Calendar.HOUR_OF_DAY, 7);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.add(Calendar.DAY_OF_MONTH, 1);
+    } else {
+      if (minute < 30) {
+        calendar.set(Calendar.MINUTE, 30);
+      } else {
+        calendar.set(Calendar.HOUR_OF_DAY, hour + 1);
+        calendar.set(Calendar.MINUTE, 0);
+      }
+    }
+
+    return calendar;
+  }
+
+  private static void setInexactRepeatingAlarm(Context context, Calendar calendar) {
     alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
             AlarmManager.INTERVAL_HALF_HOUR, getAlarmIntent(context));
-    setSharedPreferencesAlarm(context, true);
-    Log.d(BaseActivity.TAG, "Alarm scheduled");
+//    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+//            calendar.getTimeInMillis(), getAlarmIntent(context));
   }
 
   static void cancelAlarm(Context context) {

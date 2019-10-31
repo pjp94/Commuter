@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.AddCommuteActivity"></activity>
+        <activity android:name=".activity.CommuteDetailActivity" />
+        <activity android:name=".activity.AddCommuteActivity" />
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,8 +19,7 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".alarm.AlarmReceiver" />
+        <receiver android:name=".alarm.AlarmReceiver" />
     </application>
 
 </manifest>

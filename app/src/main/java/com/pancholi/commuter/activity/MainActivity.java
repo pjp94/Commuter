@@ -3,6 +3,7 @@ package com.pancholi.commuter.activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -54,8 +55,15 @@ public class MainActivity extends BaseActivity {
     commuteList.setAdapter(adapter);
   }
 
-  private CommuteListAdapter.CardMenuItemClickedListener getCardMenuItemClickedListener() {
-    return new CommuteListAdapter.CardMenuItemClickedListener() {
+  private CommuteListAdapter.CardClickedListener getCardMenuItemClickedListener() {
+    return new CommuteListAdapter.CardClickedListener() {
+      @Override
+      public void onCardClicked(int commuteId) {
+        Intent intent = new Intent(MainActivity.this, CommuteDetailActivity.class)
+                .putExtra(CommuteDetailActivity.EXTRA_COMMUTE_ID, commuteId);
+        startActivity(intent);
+      }
+
       @Override
       public void onEditClicked(Commute commute) {
         Toast.makeText(MainActivity.this, "Edit clicked.", Toast.LENGTH_SHORT).show();
@@ -84,15 +92,27 @@ public class MainActivity extends BaseActivity {
     commuteViewModel.getAllObservableCommutes().observe(this, commutes -> {
       CommuteAlarm.decideAlarm(this, commutes.size() == 1);
       setViewsAfterCommutesLoad(commutes);
-//      logDetails(commutes);
+      logDetails(commutes);
     });
   }
 
   private void setViewsAfterCommutesLoad(List<Commute> commutes) {
+    if (commutes.isEmpty()) {
+      removeAlarmPreference();
+    }
+
     adapter.setCommutes(commutes);
     commuteProgressBar.setVisibility(View.INVISIBLE);
     commuteList.setVisibility(commutes.isEmpty() ? View.INVISIBLE : View.VISIBLE);
     noCommutesAdded.setVisibility(commutes.isEmpty() ? View.VISIBLE : View.INVISIBLE);
+  }
+
+  private void removeAlarmPreference() {
+    PreferenceManager
+            .getDefaultSharedPreferences(MainActivity.this)
+            .edit()
+            .remove(CommuteAlarm.SHARED_PREFS_ALARM_SET)
+            .apply();
   }
 
   private void logDetails(List<Commute> commutes) {
